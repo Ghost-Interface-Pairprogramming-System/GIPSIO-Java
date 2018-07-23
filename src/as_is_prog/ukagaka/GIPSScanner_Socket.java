@@ -26,8 +26,8 @@ public class GIPSScanner_Socket
 		{
 			try
 			{
-				// localhost,IP12310にアスセス
-				Socket socket = new Socket("localhost", 9999);
+				// localhost,Port 12304にアスセス
+				Socket socket = new Socket("localhost", 12304);
 				// Serverに対して問題集に対応した文字列送信 ←必要・・・？
 				PrintWriter priW = new PrintWriter(socket.getOutputStream());
 				priW.write("challenge\n");
@@ -38,7 +38,6 @@ public class GIPSScanner_Socket
 				String st;
 				while ((st = bufR.readLine()) != null)
 				{
-					System.out.println(st);
 					buffer.add(st);
 				}
 				bufR.close();
