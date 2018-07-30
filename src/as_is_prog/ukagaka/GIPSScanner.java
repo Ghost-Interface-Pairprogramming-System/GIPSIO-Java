@@ -5,14 +5,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class GIPSScanner
 {
-	private Queue<String> buffer = new LinkedList<String>();
+	private ArrayList<String[]> list = new ArrayList<>();
 	private boolean bufferChecker = true;
+	private StringBuilder sb ;
+	private int counterTC=-1; //テストケース用カウンター
+	private int counterNo = -1; //テストケースにおけるテスト用の変数カウンター
 	private Scanner sc;
 
 	public GIPSScanner()
@@ -38,12 +40,14 @@ public class GIPSScanner
 					String st;
 					while ((st = bufR.readLine()) != null)
 					{
-						buffer.add(st);
+						sb.append(st);
 					}
+					list.add(sb.toString().split(""));//区切り文字不明.w.
 					//切断
 					bufR.close();
 					socket.close();
 					bufferChecker = false;
+					counterTC ++;
 				}
 				catch (IOException e)
 				{
@@ -62,11 +66,12 @@ public class GIPSScanner
 		}
 		else
 		{
-			if(buffer.peek() == null)
+			if(counterTC <= list.size())
 			{
 				GIPS.endCheck = true;
 			}
-			return buffer.poll();
+			counterNo++;
+			return list.get(counterTC)[counterNo];
 		}
 	}
 
@@ -78,11 +83,11 @@ public class GIPSScanner
 		}
 		else
 		{
-			if(buffer.peek() == null)
+			if(counterTC <= list.size())
 			{
 				GIPS.endCheck = true;
 			}
-			return Integer.valueOf(buffer.poll());
+			return Integer.valueOf(list.get(counterTC)[counterNo]);
 		}
 	}
 
@@ -94,11 +99,11 @@ public class GIPSScanner
 		}
 		else
 		{
-			if(buffer.peek() == null)
+			if(counterTC <= list.size())
 			{
 				GIPS.endCheck = true;
 			}
-			return Double.valueOf(buffer.poll());
+			return Double.valueOf(list.get(counterTC)[counterNo]);
 		}
 	}
 }
