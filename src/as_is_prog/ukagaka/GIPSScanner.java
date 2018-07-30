@@ -3,48 +3,52 @@ package as_is_prog.ukagaka;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
 public class GIPSScanner
 {
-
-	Queue<String> buffer;
-	Scanner sc;
+	private Queue<String> buffer = new LinkedList<String>();
+	private boolean bufferChecker = true;
+	private Scanner sc;
 
 	public GIPSScanner()
 	{
-		if (GIPS.debug)
+		if (GIPS.debug) //trueならSystem.in,falseなら通信
 		{
-			// debugがtrueなら値をSystem.inから取るので通信しない
 			sc = new Scanner(System.in);
 		}
 		else
 		{
-			try
+			if(bufferChecker)
 			{
-				/// http://127.0.0.1/challenge/testdataにgetアクセスして値を得て、bufferに入れる
-				URL url = new URL("http://127.0.0.1/challenge/testdata");
-				HttpURLConnection con = (HttpURLConnection) url.openConnection();
-				con.setRequestMethod("GET");
-				con.connect();
-				BufferedReader bufR = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
-				buffer = new LinkedList<String>();
-				String st;
-				while ((st = bufR.readLine()) != null)
+				try
 				{
-					buffer.add(st);
+					// localhost,Port 12304にアスセス
+					Socket socket = new Socket("localhost", 12304);
+					// serverに対して問題集に対応した文字列送信
+					PrintWriter priW = new PrintWriter(socket.getOutputStream());
+					priW.write("challenge\n");
+					priW.flush();
+					// 送信した文字列に対応した問題集の取得
+					BufferedReader bufR = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					String st;
+					while ((st = bufR.readLine()) != null)
+					{
+						buffer.add(st);
+					}
+					//切断
+					bufR.close();
+					socket.close();
+					bufferChecker = false;
 				}
-
-				bufR.close();
-				con.disconnect();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -58,6 +62,10 @@ public class GIPSScanner
 		}
 		else
 		{
+			if(buffer.peek() == null)
+			{
+				GIPS.endCheck = true;
+			}
 			return buffer.poll();
 		}
 	}
@@ -70,6 +78,10 @@ public class GIPSScanner
 		}
 		else
 		{
+			if(buffer.peek() == null)
+			{
+				GIPS.endCheck = true;
+			}
 			return Integer.valueOf(buffer.poll());
 		}
 	}
@@ -82,7 +94,12 @@ public class GIPSScanner
 		}
 		else
 		{
+			if(buffer.peek() == null)
+			{
+				GIPS.endCheck = true;
+			}
 			return Double.valueOf(buffer.poll());
 		}
 	}
 }
+

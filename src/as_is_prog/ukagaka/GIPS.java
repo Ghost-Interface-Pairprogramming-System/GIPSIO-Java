@@ -1,14 +1,24 @@
 package as_is_prog.ukagaka;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class GIPS
 {
 
-	protected static boolean debug = true;
+	//デバッグモードの判定用変数
+	static boolean debug = true;
+
+	//モード切り替えを１度だけにする用の変数(絶対他のやり方あるやろ)
+	private static boolean changeFlag =true;
+
+	//全てのテストケースが終了しているかの判定用変数
+	static boolean endCheck = false;
 
 	private static StringBuilder sb = new StringBuilder();
 
+	//改行文字の置換
 	private static String preprocess(String x)
 	{
 		return x.replaceAll("\r\n", "<br>").replaceAll("\r", "<br>").replaceAll("\n", "<br>");
@@ -108,45 +118,54 @@ public class GIPS
 		println(String.valueOf(x));
 	}
 
+	//デバッグモードに切り替え
+
 	public static void debugMode()
 	{
-		debug = true;
+		if(changeFlag)
+		{
+			debug = true;
+			changeFlag = false;
+		}
+
 	}
 
+	//デバッグモードの解除
 	public static void releaseMode()
 	{
-		debug = false;
-	}
-
-	public static void end()
-	{
-		try
+		if(changeFlag)
 		{
-			new UkagakaSSTPConnection("test").sendNotify1_1("OnGIPSChallenge", sb.toString());
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
+			debug = false;
+			changeFlag = false;
 		}
 	}
 
-	public static void ragnarøk()
+	public  static void end()
 	{
-		releaseMode();
-	}
-
-	public static void nirvāṇa()
-	{
-		end();
-	}
-
-	public static class Q
-	{
-		public static class E
+		//endcheckがtrueで送信,falseでもう一度mainメソッドを呼び出す
+		if(endCheck)
 		{
-			public static void D()
+			try
 			{
-				end();
+				new UkagakaSSTPConnection("test").sendNotify1_1("OnGIPSChallenge", sb.toString());
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			StackTraceElement ste = new Throwable().getStackTrace()[1];
+			try
+			{
+				Class<?> c = Class.forName(ste.getClassName());
+				Method m = c.getMethod(ste.getMethodName());
+				m.invoke(null);
+			}
+			catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}
