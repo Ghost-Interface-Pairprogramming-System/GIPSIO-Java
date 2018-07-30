@@ -87,6 +87,7 @@ public class GIPSScanner
 			{
 				GIPS.endCheck = true;
 			}
+			counterNo++;
 			return Integer.valueOf(list.get(counterTC)[counterNo]);
 		}
 	}
@@ -103,6 +104,7 @@ public class GIPSScanner
 			{
 				GIPS.endCheck = true;
 			}
+			counterNo++;
 			return Double.valueOf(list.get(counterTC)[counterNo]);
 		}
 	}
